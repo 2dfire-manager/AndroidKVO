@@ -64,7 +64,6 @@ public class ClassesGenerator {
                         " * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n" +
                         " */\n").append("package ").append(annotatedClass.packageName).append(".kvo;\n\n")
                 .append("import com.ark.androidkvo.models.IKVO;\n")
-                .append("import com.ark.androidkvo.models.IFieldName;;\n")
                 .append("import com.ark.androidkvo.models.KVOListener;\n")
                 .append("import com.ark.androidkvo.manager.KVOManager;\n")
                 .append("import java.io.Serializable;\n")
