@@ -140,8 +140,7 @@ public class ClassesGenerator {
                 "     * @param listener\n" +
                 "     * @param property\n" +
                 "     */\n");
-        builder.append("   @Override\n")
-                .append("   public void setListener(KVOListener listener , FieldName property){\n")
+        builder.append("   public void setListener(KVOListener listener , FieldName property){\n")
                 .append("       boolean fieldExist = false;\n" +
                         "        String fieldId = \"\";\n" +
                         "        for (FieldObject fieldObj : allKVOFields) {\n" +
