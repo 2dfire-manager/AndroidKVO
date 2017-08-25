@@ -1,0 +1,7 @@
+include ':KVOAnnotations'
+//include ':AndroidKVO-Compiler'
+include ':AndroidKVO'
+
+project(':KVOAnnotations').projectDir = new File('../KVOAnnotations')
+//project(':AndroidKVO-Compiler').projectDir = new File('../AndroidKVO-Compiler')
+project(':AndroidKVO').projectDir = new File('../AndroidKVO')

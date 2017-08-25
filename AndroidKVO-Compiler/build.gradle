@@ -1,8 +1,18 @@
 apply plugin: 'java'
 
+allprojects {
+    repositories {
+        jcenter()
+//        maven {
+//            url 'https://maven.fabric.io/public'
+//        }
+    }
+}
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.ark.android:KVOAnnotations:1.0.0'
+//    compile 'com.ark.android:KVOAnnotations:1.0.0'
+    compile project(':KVOAnnotations')
     compile 'com.google.auto.service:auto-service:1.0-rc2'
 }
 

@@ -63,6 +63,8 @@ public class ClassesGenerator {
                         " * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n" +
                         " * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n" +
                         " */\n").append("package ").append(annotatedClass.packageName).append(".kvo;\n\n")
+                .append("import com.ark.androidkvo.models.IKVO;\n")
+                .append("import com.ark.androidkvo.models.IFieldName;;\n")
                 .append("import com.ark.androidkvo.models.KVOListener;\n")
                 .append("import com.ark.androidkvo.manager.KVOManager;\n")
                 .append("import java.io.Serializable;\n")
@@ -76,7 +78,7 @@ public class ClassesGenerator {
                 .append("import com.ark.androidkvo.models.FieldObject;\n")
                 .append("import com.ark.androidkvo.models.KVOObserverObject;\n").append("import ").append(annotatedClass.packageName).append(".").append(annotatedClass.annotatedClass.getSimpleName()).append(";\n");
 
-        builder.append("public final class ").append(annotatedClass.annotatedClass.getSimpleName()).append("KVO extends ").append(annotatedClass.annotatedClass.getSimpleName()).append(" implements Serializable").append("{\n\n") // open class
+        builder.append("public final class ").append(annotatedClass.annotatedClass.getSimpleName()).append("KVO extends ").append(annotatedClass.annotatedClass.getSimpleName()).append(" implements Serializable,IKVO").append("{\n\n") // open class
                 .append("   ArrayList<FieldObject> allKVOFields = new ArrayList<FieldObject>() {{\n");
         for (VariableElement field : annotatedClass.annotatedFields) {
             fieldsName.add(field.getSimpleName().toString());
@@ -139,7 +141,8 @@ public class ClassesGenerator {
                 "     * @param listener\n" +
                 "     * @param property\n" +
                 "     */\n");
-        builder.append("   public void setListener(KVOListener listener , FieldName property){\n")
+        builder.append("   @Override\n")
+                .append("   public void setListener(KVOListener listener , FieldName property){\n")
                 .append("       boolean fieldExist = false;\n" +
                         "        String fieldId = \"\";\n" +
                         "        for (FieldObject fieldObj : allKVOFields) {\n" +
@@ -224,6 +227,7 @@ public class ClassesGenerator {
         for (VariableElement field : annotatedClass.annotatedFields) {
 
             builder.append("    public void set").append(capitalize(field.getSimpleName().toString())).append("(").append(field.asType().toString()).append(" param)").append(" {\n")
+                    .append("        this.").append(field.getSimpleName()).append(" = param;\n")
                     .append("        KVOObserverObject observerObject = initKVOProcess();\n")
                     .append("        if (observerObject != null && observerObject.getListener() != null) {\n" +
                             "            observerObject.getListener().onValueChange(this, param, observerObject.getPropertyName());\n" +
@@ -231,7 +235,7 @@ public class ClassesGenerator {
                     .append("            KVOManager.getInstance().removeObserver(observerObject);\n")
                     .append("        } else {\n" +
                             "            checkIdInManager(param);\n" +
-                            "        }\n").append("        this.").append(field.getSimpleName()).append(" = param;\n")
+                            "        }\n")
                     .append("    }\n\n");
         }
 
