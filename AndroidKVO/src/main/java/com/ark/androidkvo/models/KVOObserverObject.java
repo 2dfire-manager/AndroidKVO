@@ -19,6 +19,8 @@
 package com.ark.androidkvo.models;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * object that hold all the information about listener (the property name or id that this
@@ -29,6 +31,8 @@ import java.lang.ref.WeakReference;
 public class KVOObserverObject {
 
     private WeakReference<KVOListener> listener;
+    private WeakReference<List<KVOListener>> listeners;
+
     private String propertyName;
     private String fieldId;
 
@@ -38,6 +42,19 @@ public class KVOObserverObject {
 
     public void setListener(KVOListener listener) {
         this.listener = new WeakReference<>(listener);
+    }
+
+    public void addListener(KVOListener listener){
+        if (this.listeners == null) listeners = new WeakReference<List<KVOListener>>(new ArrayList<KVOListener>());
+        List<KVOListener> listeners = this.listeners.get();
+        if (!listeners.contains(listener)){
+            listeners.add(listener);
+        }
+    }
+
+    public WeakReference<List<KVOListener>> getListeners() {
+        if (this.listeners == null) listeners = new WeakReference<List<KVOListener>>(new ArrayList<KVOListener>());
+        return listeners;
     }
 
     public String getPropertyName() {
