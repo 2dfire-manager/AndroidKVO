@@ -1,4 +1,4 @@
-package com.ark.androidkvo.models.ref;
+package com.ark.androidkvo.models.val;
 
 import android.app.Activity;
 import android.support.v4.app.Fragment;
@@ -6,9 +6,9 @@ import android.support.v4.app.Fragment;
 import com.ark.androidkvo.annotations.KVOField;
 import com.ark.androidkvo.manager.KVOManager;
 import com.ark.androidkvo.models.FieldObject;
-import com.ark.androidkvo.models.IKVO;
 import com.ark.androidkvo.models.KVOListener;
 import com.ark.androidkvo.models.KVOObserverObject;
+import com.ark.androidkvo.models.KVOVal;
 
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
@@ -20,7 +20,7 @@ import java.util.List;
  * Created by dove on 2017/8/28.
  */
 
-public final class StringKVO  implements Serializable,IKVO {
+public final class StringKVO  implements Serializable,KVOVal {
 
     protected java.lang.String value;
 
@@ -36,6 +36,7 @@ public final class StringKVO  implements Serializable,IKVO {
         this.value = s;
     }
 
+    @Override
     public java.lang.String getValue() {
         return value;
     }
@@ -93,6 +94,11 @@ public final class StringKVO  implements Serializable,IKVO {
                 }
             }
         }
+    }
+
+    @Override
+    public StringKVO cloneSelf() {
+        return new StringKVO(this.value);
     }
 
     /**

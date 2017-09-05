@@ -23,6 +23,7 @@ import com.ark.androidkvo.models.AnnotatedClass;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.FileHandler;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
@@ -63,7 +64,7 @@ public class ClassesGenerator {
                         " * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n" +
                         " * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n" +
                         " */\n").append("package ").append(annotatedClass.packageName).append(".kvo;\n\n")
-                .append("import com.ark.androidkvo.models.IKVO;\n")
+                .append("import com.ark.androidkvo.models.KVORef;\n")
                 .append("import com.ark.androidkvo.models.KVOListener;\n")
                 .append("import com.ark.androidkvo.manager.KVOManager;\n")
                 .append("import java.io.Serializable;\n")
@@ -77,7 +78,7 @@ public class ClassesGenerator {
                 .append("import com.ark.androidkvo.models.FieldObject;\n")
                 .append("import com.ark.androidkvo.models.KVOObserverObject;\n").append("import ").append(annotatedClass.packageName).append(".").append(annotatedClass.annotatedClass.getSimpleName()).append(";\n");
 
-        builder.append("public final class ").append(annotatedClass.annotatedClass.getSimpleName()).append("KVO extends ").append(annotatedClass.annotatedClass.getSimpleName()).append(" implements Serializable,IKVO").append("{\n\n") // open class
+        builder.append("public final class ").append(annotatedClass.annotatedClass.getSimpleName()).append("KVO extends ").append(annotatedClass.annotatedClass.getSimpleName()).append(" implements Serializable,KVORef").append("{\n\n") // open class
                 .append("   ArrayList<FieldObject> allKVOFields = new ArrayList<FieldObject>() {{\n");
         for (VariableElement field : annotatedClass.annotatedFields) {
             fieldsName.add(field.getSimpleName().toString());
@@ -101,6 +102,29 @@ public class ClassesGenerator {
 
             TypeElement declaringClass =
                     (TypeElement) cons.getEnclosingElement();
+
+            String className = declaringClass.getSimpleName().toString() + "KVO";
+            builder.append("   @Override\n")
+                    .append("   public ").append(className).append(" cloneSelf() {\n")
+                    .append("       ").append(className).append(" m").append(className).append(" = new ").append(className).append("();\n");
+
+            for(int x = 0 ; x < annotatedClass.annotatedFields.size() ; x++){
+                VariableElement field = annotatedClass.annotatedFields.get(x);
+                builder.append("    m").append(className).append(".set").append(capitalize(field.getSimpleName().toString()))
+                        .append("(this.").append(field.getSimpleName()).append(".cloneSelf());\n");
+            }
+            builder.append("       return m").append(className).append(";\n")
+                    .append("   }\n");
+//
+//            builder.append("   @Override\n" +
+//                    "    public WidgetTestViewModelKVO cloneSelf() {\n" +
+//                    "        WidgetTestViewModelKVO widgetTestViewModel = new WidgetTestViewModelKVO();\n" +
+//                    "        widgetTestViewModel.setTitle(this.title.cloneSelf());\n" +
+//                    "        widgetTestViewModel.setContent(this.content.cloneSelf());\n" +
+//                    "        widgetTestViewModel.setVisible(this.visible.cloneSelf());\n" +
+//                    "        return widgetTestViewModel;\n" +
+//                    "    }");
+
             builder.append("    public ").append(declaringClass.getSimpleName().toString()).append("KVO(");
             for(int x = 0 ; x < cons.getParameters().size() ; x++){
                 if(x > 0)

@@ -17,19 +17,21 @@
  */
 package com.ark.androidkvo.models.val;
 
-import com.ark.androidkvo.models.IKVO;
-import com.ark.androidkvo.models.KVOListener;
-import com.ark.androidkvo.manager.KVOManager;
-import java.io.Serializable;
 import android.app.Activity;
 import android.support.v4.app.Fragment;
+
 import com.ark.androidkvo.annotations.KVOField;
-import java.lang.ref.WeakReference;
-import java.util.List;import java.util.Iterator;
-import java.util.ArrayList;
+import com.ark.androidkvo.manager.KVOManager;
 import com.ark.androidkvo.models.FieldObject;
+import com.ark.androidkvo.models.KVOListener;
 import com.ark.androidkvo.models.KVOObserverObject;
 import com.ark.androidkvo.models.KVOVal;
+
+import java.io.Serializable;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public final class NothingKVO implements Serializable,KVOVal{
 
@@ -43,6 +45,7 @@ public final class NothingKVO implements Serializable,KVOVal{
        value
     }
 
+    @Override
     public java.lang.Object getValue() {
         return value;
     }
@@ -104,6 +107,11 @@ public final class NothingKVO implements Serializable,KVOVal{
            }
         }
    }
+
+    @Override
+    public NothingKVO cloneSelf() {
+        return new NothingKVO(this.value);
+    }
 
     /**
      * use this method to remove the callback listener 
