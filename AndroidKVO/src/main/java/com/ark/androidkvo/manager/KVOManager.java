@@ -42,7 +42,7 @@ public class KVOManager {
         return ourInstance;
     }
 
-    private KVOManager() {
+    public KVOManager() {
     }
 
     public void addObserver(KVOObserverObject observerObject) {

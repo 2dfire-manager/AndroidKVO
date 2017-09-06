@@ -23,6 +23,7 @@ import android.support.v4.app.Fragment;
 import com.ark.androidkvo.annotations.KVOField;
 import com.ark.androidkvo.manager.KVOManager;
 import com.ark.androidkvo.models.FieldObject;
+import com.ark.androidkvo.models.IKVO;
 import com.ark.androidkvo.models.KVOListener;
 import com.ark.androidkvo.models.KVOObserverObject;
 import com.ark.androidkvo.models.KVOVal;
@@ -33,10 +34,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public final class NothingKVO implements Serializable,KVOVal{
+public final class NothingKVO implements Serializable,KVOVal<Object,NothingKVO>{
 
     protected java.lang.Object value;
-
+    private KVOManager mKVOManager = new KVOManager();
     ArrayList<FieldObject> allKVOFields = new ArrayList<FieldObject>() {{
         add(new FieldObject("value",""));
     }};
@@ -80,10 +81,10 @@ public final class NothingKVO implements Serializable,KVOVal{
       observerObject.setFieldId(fieldId);
      observerObject.setPropertyName(property.name());
            if(!fieldId.equals("")){
-               KVOManager.getInstance().addIdentifiedObserver(fieldId, listener);
+               mKVOManager.addIdentifiedObserver(fieldId, listener);
            }else {
-               if (!KVOManager.getInstance().getObservers().contains(observerObject)) {
-                   KVOManager.getInstance().addObserver(observerObject);
+               if (!mKVOManager.getObservers().contains(observerObject)) {
+                   mKVOManager.addObserver(observerObject);
                }
            }
    }
@@ -99,10 +100,10 @@ public final class NothingKVO implements Serializable,KVOVal{
            observerObject.setPropertyName(field.getFieldName());
            observerObject.setFieldId(field.getFieldID());
            if(!field.getFieldID().equals("")){
-               KVOManager.getInstance().addIdentifiedObserver(field.getFieldID(), listener);
+               mKVOManager.addIdentifiedObserver(field.getFieldID(), listener);
            }else {
-               if (!KVOManager.getInstance().getObservers().contains(observerObject)) {
-                   KVOManager.getInstance().addObserver(observerObject);
+               if (!mKVOManager.getObservers().contains(observerObject)) {
+                   mKVOManager.addObserver(observerObject);
                }
            }
         }
@@ -113,20 +114,33 @@ public final class NothingKVO implements Serializable,KVOVal{
         return new NothingKVO(this.value);
     }
 
+
+    @Override
+    public boolean same(NothingKVO nothingKVO) {
+        return nothingKVO.getValue() == null;
+    }
+
+    @Override
+    public boolean updateValue(NothingKVO nothingKVO) {
+        if (nothingKVO == null) return false;
+        nothingKVO.setValue(null);
+        return true;
+    }
+
     /**
      * use this method to remove the callback listener 
      * @param kvoListener
      */
     public void removeListener(KVOListener kvoListener){
 
-        for (Iterator<KVOObserverObject> iterator = KVOManager.getInstance().getObservers().iterator(); iterator.hasNext();) {
+        for (Iterator<KVOObserverObject> iterator = mKVOManager.getObservers().iterator(); iterator.hasNext();) {
             KVOObserverObject observerObject = iterator.next();
             if (observerObject.getListener().equals(kvoListener)) {
                 // Remove the current element from the iterator and the list.
                 iterator.remove();
             }
         }
-           KVOManager.getInstance().removeIdentifiedObserver(kvoListener);
+           mKVOManager.removeIdentifiedObserver(kvoListener);
     }
 
     /**
@@ -147,15 +161,15 @@ public final class NothingKVO implements Serializable,KVOVal{
         }
         if (!fieldExist)
             throw new RuntimeException("Field with id " + id + " does not exist or it maybe private");
-        KVOManager.getInstance().addIdentifiedObserver(id , listener);
+        mKVOManager.addIdentifiedObserver(id , listener);
     }
     public void setValue(java.lang.Object param) {
         this.value = param;
         KVOObserverObject observerObject = initKVOProcess();
         if (observerObject != null && observerObject.getListener() != null) {
-            observerObject.getListener().onValueChange(this, param, observerObject.getPropertyName());
+            observerObject.getListener().onValueChange(this, this, observerObject.getPropertyName());
         } else if (observerObject != null && observerObject.getListener() == null){
-            KVOManager.getInstance().removeObserver(observerObject);
+            mKVOManager.removeObserver(observerObject);
         } else {
             checkIdInManager(param);
         }
@@ -173,7 +187,7 @@ public final class NothingKVO implements Serializable,KVOVal{
                     List<KVOListener> listeners = getListenerForId(field.getFieldID());
                     if (listeners != null) {
                         for (KVOListener listener : listeners) {
-                            listener.onValueChange(this,param,field.getFieldID());
+                            listener.onValueChange(this,this,field.getFieldID());
                         }
                     }
                 }
@@ -189,7 +203,7 @@ public final class NothingKVO implements Serializable,KVOVal{
      */
     private List<KVOListener> getListenerForId(String id) {
         List<KVOListener> targetList = new ArrayList<>();
-        List<WeakReference<KVOListener>> sourceList = KVOManager.getInstance().getIdentifiedObservers().get(id);
+        List<WeakReference<KVOListener>> sourceList = mKVOManager.getIdentifiedObservers().get(id);
         if (sourceList != null && !sourceList.isEmpty()) {
             for (Iterator<WeakReference<KVOListener>> iterator = sourceList.iterator(); iterator.hasNext(); ) {
                 KVOListener observerObject = iterator.next().get();
@@ -246,7 +260,7 @@ public final class NothingKVO implements Serializable,KVOVal{
      */
     private KVOObserverObject containProperty(String propertyName){
 
-       for (Iterator<KVOObserverObject> iterator = KVOManager.getInstance().getObservers().iterator(); iterator.hasNext(); ) {
+       for (Iterator<KVOObserverObject> iterator = mKVOManager.getObservers().iterator(); iterator.hasNext(); ) {
            KVOObserverObject observerObject = iterator.next();
            if (observerObject.getPropertyName().equalsIgnoreCase(propertyName) && observerObject.getListener() != null) {
                if(observerObject.getListener() instanceof Activity)

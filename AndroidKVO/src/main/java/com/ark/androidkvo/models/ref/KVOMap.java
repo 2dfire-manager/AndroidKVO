@@ -33,4 +33,14 @@ public class KVOMap<K,V extends IKVO> extends HashMap<K,V> implements KVORef{
     public KVOMap cloneSelf() {
         return null;
     }
+
+    @Override
+    public boolean same(IKVO ikvo) {
+        return false;
+    }
+
+    @Override
+    public boolean updateValue(IKVO ikvo) {
+        return false;
+    }
 }

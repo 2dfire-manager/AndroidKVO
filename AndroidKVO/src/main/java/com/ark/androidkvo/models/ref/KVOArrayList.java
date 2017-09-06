@@ -41,4 +41,14 @@ public class KVOArrayList<E extends IKVO> extends ArrayList<E> implements KVORef
     public KVOArrayList cloneSelf() {
         return null;
     }
+
+    @Override
+    public boolean same(IKVO ikvo) {
+        return false;
+    }
+
+    @Override
+    public boolean updateValue(IKVO ikvo) {
+        return false;
+    }
 }

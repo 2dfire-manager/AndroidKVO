@@ -64,6 +64,7 @@ public class ClassesGenerator {
                         " * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n" +
                         " * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n" +
                         " */\n").append("package ").append(annotatedClass.packageName).append(".kvo;\n\n")
+                .append("import com.ark.androidkvo.models.IKVO;\n")
                 .append("import com.ark.androidkvo.models.KVORef;\n")
                 .append("import com.ark.androidkvo.models.KVOListener;\n")
                 .append("import com.ark.androidkvo.manager.KVOManager;\n")
@@ -78,7 +79,7 @@ public class ClassesGenerator {
                 .append("import com.ark.androidkvo.models.FieldObject;\n")
                 .append("import com.ark.androidkvo.models.KVOObserverObject;\n").append("import ").append(annotatedClass.packageName).append(".").append(annotatedClass.annotatedClass.getSimpleName()).append(";\n");
 
-        builder.append("public final class ").append(annotatedClass.annotatedClass.getSimpleName()).append("KVO extends ").append(annotatedClass.annotatedClass.getSimpleName()).append(" implements Serializable,KVORef").append("{\n\n") // open class
+        builder.append("public final class ").append(annotatedClass.annotatedClass.getSimpleName()).append("KVO extends ").append(annotatedClass.annotatedClass.getSimpleName()).append(" implements Serializable,KVORef<").append(annotatedClass.annotatedClass.getSimpleName()).append("KVO>{\n\n") // open class
                 .append("   ArrayList<FieldObject> allKVOFields = new ArrayList<FieldObject>() {{\n");
         for (VariableElement field : annotatedClass.annotatedFields) {
             fieldsName.add(field.getSimpleName().toString());
@@ -96,6 +97,7 @@ public class ClassesGenerator {
                 builder.append("\n   }\n\n");
             }
         }
+        builder.append("    private KVOManager mKVOManager = new KVOManager();\n");
 
         for (ExecutableElement cons :
                 ElementFilter.constructorsIn(annotatedClass.annotatedClass.getEnclosedElements())) {
@@ -115,15 +117,45 @@ public class ClassesGenerator {
             }
             builder.append("       return m").append(className).append(";\n")
                     .append("   }\n");
-//
-//            builder.append("   @Override\n" +
-//                    "    public WidgetTestViewModelKVO cloneSelf() {\n" +
-//                    "        WidgetTestViewModelKVO widgetTestViewModel = new WidgetTestViewModelKVO();\n" +
-//                    "        widgetTestViewModel.setTitle(this.title.cloneSelf());\n" +
-//                    "        widgetTestViewModel.setContent(this.content.cloneSelf());\n" +
-//                    "        widgetTestViewModel.setVisible(this.visible.cloneSelf());\n" +
-//                    "        return widgetTestViewModel;\n" +
-//                    "    }");
+
+            String variable = "m"+ capitalize(className);
+            builder.append("    @Override\n")
+                    .append("   public boolean same(").append(className).append(" ").append(variable).append("){\n")
+                    .append("       if(").append(variable).append(" == null) return false;\n");
+            for(int x = 0 ; x < annotatedClass.annotatedFields.size() ; x++){
+                VariableElement field = annotatedClass.annotatedFields.get(x);
+                String fieldName = field.getSimpleName().toString();
+                builder .append("       if(this.").append(fieldName).append(" == null").append("){\n")
+                        .append("            if(").append(variable).append(".get").append(capitalize(fieldName)).append("() != null){\n")
+                        .append("               return false;\n")
+                        .append("            }\n")
+                        .append("       } else {\n")
+                        .append("           this.").append(fieldName).append(".same(").append(variable).append(".get").append(capitalize(fieldName)).append("());\n")
+                        .append("       }\n");
+            }
+            builder.append("       return true;\n")
+                    .append("   }\n\n");
+
+            builder.append("    public boolean updateValue(" ).append(className).append(" ").append(variable).append("){\n")
+                    .append("       if (").append(variable).append(" == null) return false;\n")
+                    .append("       if(same(").append(variable).append(")) return false;\n");
+
+            for(int x = 0 ; x < annotatedClass.annotatedFields.size() ; x++){
+                VariableElement field = annotatedClass.annotatedFields.get(x);
+                String fieldName = field.getSimpleName().toString();
+                builder.append("        ").append(field.asType().toString()).append(" ").append(fieldName).append(" = ").append(" ").append(variable).append(".get").append(capitalize(fieldName)).append("();\n")
+                        .append("       if(").append(fieldName).append(" == null").append("){\n")
+                        .append("            ").append(variable).append(".set").append(capitalize(fieldName)).append("(this.").append(fieldName) .append(".cloneSelf());\n")
+                        .append("       } else {\n")
+                        .append("           if(!").append(fieldName).append(".same(this.").append(fieldName).append(")){\n")
+                        .append("               this.").append(fieldName).append(".updateValue(").append(fieldName).append(");\n")
+                        .append("           }\n")
+                        .append("       }\n");
+            }
+
+            builder.append("        return true;\n")
+                    .append("   }\n");
+
 
             builder.append("    public ").append(declaringClass.getSimpleName().toString()).append("KVO(");
             for(int x = 0 ; x < cons.getParameters().size() ; x++){
@@ -181,10 +213,10 @@ public class ClassesGenerator {
                 .append("      observerObject.setFieldId(fieldId);\n")
                 .append("     observerObject.setPropertyName(property.name());\n")
                 .append("           if(!fieldId.equals(\"\")){\n")
-                .append("               KVOManager.getInstance().addIdentifiedObserver(fieldId, listener);\n")
+                .append("               mKVOManager.addIdentifiedObserver(fieldId, listener);\n")
                 .append("           }else {\n")
-                .append("               if (!KVOManager.getInstance().getObservers().contains(observerObject)) {\n")
-                .append("                   KVOManager.getInstance().addObserver(observerObject);\n")
+                .append("               if (!mKVOManager.getObservers().contains(observerObject)) {\n")
+                .append("                   mKVOManager.addObserver(observerObject);\n")
                 .append("               }\n")
                 .append("           }\n")
                 .append("   }\n");
@@ -201,10 +233,10 @@ public class ClassesGenerator {
                 "           observerObject.setPropertyName(field.getFieldName());\n" +
                 "           observerObject.setFieldId(field.getFieldID());\n"+
                 "           if(!field.getFieldID().equals(\"\")){\n" +
-                "               KVOManager.getInstance().addIdentifiedObserver(field.getFieldID(), listener);\n" +
+                "               mKVOManager.addIdentifiedObserver(field.getFieldID(), listener);\n" +
                 "           }else {\n" +
-                "               if (!KVOManager.getInstance().getObservers().contains(observerObject)) {\n" +
-                "                   KVOManager.getInstance().addObserver(observerObject);\n" +
+                "               if (!mKVOManager.getObservers().contains(observerObject)) {\n" +
+                "                   mKVOManager.addObserver(observerObject);\n" +
                 "               }\n" +
                 "           }\n"+
                 "        }\n" +
@@ -216,14 +248,14 @@ public class ClassesGenerator {
                 "     */\n");
         builder.append("    public void removeListener(KVOListener kvoListener){\n" +
                 "\n" +
-                "        for (Iterator<KVOObserverObject> iterator = KVOManager.getInstance().getObservers().iterator(); iterator.hasNext();) {\n" +
+                "        for (Iterator<KVOObserverObject> iterator = mKVOManager.getObservers().iterator(); iterator.hasNext();) {\n" +
                 "            KVOObserverObject observerObject = iterator.next();\n" +
                 "            if (observerObject.getListener().equals(kvoListener)) {\n" +
                 "                // Remove the current element from the iterator and the list.\n" +
                 "                iterator.remove();\n" +
                 "            }\n" +
                 "        }\n" +
-                "           KVOManager.getInstance().removeIdentifiedObserver(kvoListener);\n"+
+                "           mKVOManager.removeIdentifiedObserver(kvoListener);\n"+
                 "    }\n\n");
 
         builder.append("    /**\n" +
@@ -244,7 +276,7 @@ public class ClassesGenerator {
                 "            }\n" +
                 "        }\n")
                 .append("        if (!fieldExist)\n")
-                .append("            throw new RuntimeException(\"Field with id \" + id + \" does not exist or it maybe private\");\n").append("        KVOManager.getInstance().addIdentifiedObserver(id , listener);\n").append("    }\n");
+                .append("            throw new RuntimeException(\"Field with id \" + id + \" does not exist or it maybe private\");\n").append("        mKVOManager.addIdentifiedObserver(id , listener);\n").append("    }\n");
 
         for (VariableElement field : annotatedClass.annotatedFields) {
 
@@ -254,7 +286,7 @@ public class ClassesGenerator {
                     .append("        if (observerObject != null && observerObject.getListener() != null) {\n" +
                             "            observerObject.getListener().onValueChange(this, param, observerObject.getPropertyName());\n" +
                             "        } else if (observerObject != null && observerObject.getListener() == null){\n")
-                    .append("            KVOManager.getInstance().removeObserver(observerObject);\n")
+                    .append("            mKVOManager.removeObserver(observerObject);\n")
                     .append("        } else {\n" +
                             "            checkIdInManager(param);\n" +
                             "        }\n")
@@ -267,7 +299,7 @@ public class ClassesGenerator {
                 "     * @param param\n" +
                 "     */\n");
 
-        builder.append("    private void checkIdInManager(Object param){\n" +
+        builder.append("    private void checkIdInManager(IKVO param){\n" +
                 "               for (FieldObject field : allKVOFields) {\n" +
                 "            if (field.getFieldName().equalsIgnoreCase(getFieldName())) {\n" +
                 "                if (!field.getFieldID().equals(\"\")) {\n" +
@@ -292,7 +324,7 @@ public class ClassesGenerator {
 
         builder.append("    private List<KVOListener> getListenerForId(String id) {\n" +
                 "        List<KVOListener> targetList = new ArrayList<>();\n" +
-                "        List<WeakReference<KVOListener>> sourceList = KVOManager.getInstance().getIdentifiedObservers().get(id);\n" +
+                "        List<WeakReference<KVOListener>> sourceList = mKVOManager.getIdentifiedObservers().get(id);\n" +
                 "        if (sourceList != null && !sourceList.isEmpty()) {\n" +
                 "            for (Iterator<WeakReference<KVOListener>> iterator = sourceList.iterator(); iterator.hasNext(); ) {\n" +
                 "                KVOListener observerObject = iterator.next().get();\n" +
@@ -350,7 +382,7 @@ public class ClassesGenerator {
                 "     */\n"+
                 "    private KVOObserverObject containProperty(String propertyName){\n" +
                 "\n" +
-                "       for (Iterator<KVOObserverObject> iterator = KVOManager.getInstance().getObservers().iterator(); iterator.hasNext(); ) {\n" +
+                "       for (Iterator<KVOObserverObject> iterator = mKVOManager.getObservers().iterator(); iterator.hasNext(); ) {\n" +
                 "           KVOObserverObject observerObject = iterator.next();\n" +
                 "           if (observerObject.getPropertyName().equalsIgnoreCase(propertyName) && observerObject.getListener() != null) {\n"+
                 "               if(observerObject.getListener() instanceof Activity)\n"+
