@@ -184,6 +184,7 @@ public final class StringKVO implements Serializable,KVOVal<String,StringKVO> {
     }
 
     public void notifyParent(){
+        if (parent == null) return;
         KVOObserverObject observerObject = this.parent.getObserverObject(mSelfField);
         if (observerObject != null && observerObject.getListener() != null) {
             observerObject.getListener().onValueChange(this.parent, this, mSelfField);
