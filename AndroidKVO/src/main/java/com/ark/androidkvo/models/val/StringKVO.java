@@ -8,6 +8,7 @@ import com.ark.androidkvo.manager.KVOManager;
 import com.ark.androidkvo.models.FieldObject;
 import com.ark.androidkvo.models.KVOListener;
 import com.ark.androidkvo.models.KVOObserverObject;
+import com.ark.androidkvo.models.KVORef;
 import com.ark.androidkvo.models.KVOVal;
 
 import java.io.Serializable;
@@ -31,6 +32,26 @@ public final class StringKVO implements Serializable,KVOVal<String,StringKVO> {
     public enum FieldName{
         value
     }
+
+    private KVORef parent;
+    private String mSelfField;
+
+    public KVORef getParent() {
+        return parent;
+    }
+
+    public void setParent(KVORef parent) {
+        this.parent = parent;
+    }
+
+    public void setSelfField(String selfField){
+        this.mSelfField = selfField;
+    }
+
+    public String getSelfField() {
+        return mSelfField;
+    }
+
 
     public StringKVO(String s){
         this.value = s;
@@ -107,9 +128,9 @@ public final class StringKVO implements Serializable,KVOVal<String,StringKVO> {
     }
 
     @Override
-    public boolean updateValue(StringKVO stringKVO) {
+    public boolean updateSelfValue(StringKVO stringKVO,String fieldName) {
         if (stringKVO == null) return false;
-         stringKVO.setValue(this.value);
+        this.value = stringKVO.getValue();
         return true;
     }
 
@@ -159,6 +180,15 @@ public final class StringKVO implements Serializable,KVOVal<String,StringKVO> {
         } else {
             checkIdInManager(param);
         }
+        notifyParent();
+    }
+
+    public void notifyParent(){
+        KVOObserverObject observerObject = this.parent.getObserverObject(mSelfField);
+        if (observerObject != null && observerObject.getListener() != null) {
+            observerObject.getListener().onValueChange(this.parent, this, mSelfField);
+        }
+        parent.notifyParent();
     }
 
     /**

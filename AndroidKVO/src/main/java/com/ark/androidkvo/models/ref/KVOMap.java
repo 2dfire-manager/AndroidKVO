@@ -2,6 +2,7 @@ package com.ark.androidkvo.models.ref;
 
 import com.ark.androidkvo.models.IKVO;
 import com.ark.androidkvo.models.KVOListener;
+import com.ark.androidkvo.models.KVOObserverObject;
 import com.ark.androidkvo.models.KVORef;
 
 import java.util.HashMap;
@@ -40,7 +41,18 @@ public class KVOMap<K,V extends IKVO> extends HashMap<K,V> implements KVORef{
     }
 
     @Override
-    public boolean updateValue(IKVO ikvo) {
+    public boolean updateSelfValue(IKVO ikvo, String fieldName) {
+
         return false;
+    }
+
+    @Override
+    public void notifyParent() {
+
+    }
+
+    @Override
+    public KVOObserverObject getObserverObject(String field) {
+        return null;
     }
 }

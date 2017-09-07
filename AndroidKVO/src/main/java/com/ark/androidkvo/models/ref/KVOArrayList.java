@@ -2,6 +2,7 @@ package com.ark.androidkvo.models.ref;
 
 import com.ark.androidkvo.models.IKVO;
 import com.ark.androidkvo.models.KVOListener;
+import com.ark.androidkvo.models.KVOObserverObject;
 import com.ark.androidkvo.models.KVORef;
 
 import java.util.ArrayList;
@@ -13,6 +14,25 @@ import java.util.ArrayList;
 public class KVOArrayList<E extends IKVO> extends ArrayList<E> implements KVORef{
 
     private KVOListener mKVOListener;
+
+    private IKVO parent;
+    private String mSelfField;
+
+    public IKVO getParent() {
+        return parent;
+    }
+
+    public void setParent(IKVO parent) {
+        this.parent = parent;
+    }
+
+    public String getSelfField() {
+        return mSelfField;
+    }
+
+    public void setSelfField(String selfField) {
+        this.mSelfField = selfField;
+    }
 
     @Override
     public E set(int index, E element) {
@@ -48,7 +68,18 @@ public class KVOArrayList<E extends IKVO> extends ArrayList<E> implements KVORef
     }
 
     @Override
-    public boolean updateValue(IKVO ikvo) {
+    public boolean updateSelfValue(IKVO ikvo, String fieldName) {
         return false;
     }
+
+    @Override
+    public void notifyParent() {
+
+    }
+
+    @Override
+    public KVOObserverObject getObserverObject(String field) {
+        return null;
+    }
+
 }

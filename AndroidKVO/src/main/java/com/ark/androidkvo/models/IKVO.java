@@ -10,5 +10,6 @@ public interface IKVO<T extends IKVO> {
     void setListener(KVOListener kvoListener);
     T cloneSelf();
     boolean same(T t);
-    boolean updateValue(T t);
+    boolean updateSelfValue(T t,String fieldName);
+    void notifyParent();
 }
