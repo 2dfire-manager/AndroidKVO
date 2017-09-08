@@ -5,4 +5,5 @@ package com.ark.androidkvo.models;
  */
 
 public interface KVORef<T extends IKVO> extends IKVO<T>{
+    public KVOObserverObject getObserverObject(String field);
 }

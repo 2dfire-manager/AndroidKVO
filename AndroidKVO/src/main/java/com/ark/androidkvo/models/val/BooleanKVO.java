@@ -25,6 +25,7 @@ import com.ark.androidkvo.manager.KVOManager;
 import com.ark.androidkvo.models.FieldObject;
 import com.ark.androidkvo.models.KVOListener;
 import com.ark.androidkvo.models.KVOObserverObject;
+import com.ark.androidkvo.models.KVORef;
 import com.ark.androidkvo.models.KVOVal;
 
 import java.io.Serializable;
@@ -38,10 +39,12 @@ public final class BooleanKVO implements Serializable,KVOVal<Boolean,BooleanKVO>
 
     protected java.lang.Boolean value;
     private KVOManager mKVOManager = new KVOManager();
-    
+    private String mSelfField;
    private ArrayList<FieldObject> allKVOFields = new ArrayList<FieldObject>() {{
         add(new FieldObject("value",""));
    }};
+
+    private KVORef parent;
    public enum FieldName{
        value
    }
@@ -50,18 +53,34 @@ public final class BooleanKVO implements Serializable,KVOVal<Boolean,BooleanKVO>
         this.value = b;
     }
 
+    public void setSelfField(String selfField){
+        this.mSelfField = selfField;
+    }
+
+    public String getSelfField() {
+        return mSelfField;
+    }
+
+    public KVORef getParent() {
+        return parent;
+    }
+
+    public void setParent(KVORef parent) {
+        this.parent = parent;
+    }
+
     @Override
     public java.lang.Boolean getValue() {
         return value;
     }
 
     /**
-     * you can use this method to set a callback for a certain field 
+     * you can use this method to set a callback for a certain field
      * All You have to do is pass object that implement {@link KVOListener} and pass the field name using {@link FieldName}
      * Which you can find inside the generated class you can access it like this generatedClass.FieldName.Field where generated class is your className+KVO
      * and Field is your field name the purpose of that in case you change the field name you got a compilation error instead of searching for fields name
      * as strings
-     * 
+     *
      * @param listener 设置监听 listener
      * @param property 自定义的属性值
      */
@@ -121,15 +140,24 @@ public final class BooleanKVO implements Serializable,KVOVal<Boolean,BooleanKVO>
     }
 
     @Override
-    public boolean updateValue(BooleanKVO booleanKVO) {
+    public boolean updateSelfValue(BooleanKVO booleanKVO,String fieldName) {
         if (booleanKVO == null) return false;
-        booleanKVO.setValue(this.value);
+        this.value = booleanKVO.getValue();
         return true;
+    }
+
+    @Override
+    public void notifyParent() {
+        KVOObserverObject observerObject = this.parent.getObserverObject(mSelfField);
+        if (observerObject != null && observerObject.getListener() != null) {
+            observerObject.getListener().onValueChange(this.parent, this, mSelfField);
+        }
+        parent.notifyParent();
     }
 
 
     /**
-     * use this method to remove the callback listener 
+     * use this method to remove the callback listener
      * @param kvoListener 移除监听 listener
      */
     public void removeListener(KVOListener kvoListener){
