@@ -25,5 +25,6 @@ package com.ark.androidkvo.models;
  */
 public interface KVOListener {
 
-    void onValueChange(IKVO affectedObject, IKVO changedValue, String fieldNameOrId);
+    void onValueChange(IKVO affectedObject, IKVO newValue, String fieldNameOrId);
+//    void onValueChange(IKVO affectedObject, IKVO newValue, IKVO oldValue,String fieldNameOrId);
 }
