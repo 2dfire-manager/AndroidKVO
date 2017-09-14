@@ -67,30 +67,32 @@ public class ClassesGenerator {
         // class start
         builder.append("public final class ").append(annotatedClass.annotatedClass.getSimpleName()).append("KVO extends ")
                 .append(annotatedClass.annotatedClass.getSimpleName())
-                .append(" implements Serializable,KVORef<").append(annotatedClass.annotatedClass.getSimpleName()).append("KVO>{\n\n");// open class
+                .append(" implements Serializable,IKVO")
+//                .append("<").append(annotatedClass.annotatedClass.getSimpleName()).append("KVO>")
+                .append("{\n\n");// open class
         fieldClassAndEnum(builder,annotatedClass);
         builder.append("    private KVOManager mKVOManager = new KVOManager();\n");
 
-        getObserverObject(builder);
-        getSelfFieldAndSetParent(builder);
+//        getObserverObject(builder);
+//        getSelfFieldAndSetParent(builder);
         for (ExecutableElement cons :
                 ElementFilter.constructorsIn(annotatedClass.annotatedClass.getEnclosedElements())) {
 
             TypeElement declaringClass =
                     (TypeElement) cons.getEnclosingElement();
             generateConstruct(builder,declaringClass,cons);
-            String className = declaringClass.getSimpleName().toString() + "KVO";
-            String variable = "m"+ capitalize(className);
-            cloneSelf(builder,className,annotatedClass);
-            same(builder,className,variable,annotatedClass);
-            updateSelfValue(builder,variable,className,annotatedClass);
+//            String className = declaringClass.getSimpleName().toString() + "KVO";
+//            String variable = "m"+ capitalize(className);
+//            cloneSelf(builder,className,annotatedClass);
+//            same(builder,className,variable,annotatedClass);
+//            updateSelfValue(builder,variable,className,annotatedClass);
         }
         setListenerWithField(builder);
         setListener(builder);
         removeListener(builder);
         setListenerForId(builder);
-        getAndSet(builder,annotatedClass);
-        notifyParent(builder);
+        set(builder,annotatedClass);
+//        notifyParent(builder);
         checkIdInManager(builder);
         initKVOProcess(builder)
         .append("}\n"); // end close class
@@ -120,9 +122,10 @@ public class ClassesGenerator {
     }
 
     static StringBuilder importRef(StringBuilder builder,AnnotatedClass annotatedClass){
+        // TODO: 2017/9/14 待修改删除无用的引用导入
         return builder.append("import com.ark.androidkvo.manager.Utils;")
                 .append("import com.ark.androidkvo.models.IKVO;\n")
-                .append("import com.ark.androidkvo.models.KVORef;\n")
+//                .append("import com.ark.androidkvo.models.KVORef;\n")
                 .append("import com.ark.androidkvo.models.KVOListener;\n")
                 .append("import com.ark.androidkvo.manager.KVOManager;\n")
                 .append("import java.io.Serializable;\n")
@@ -240,7 +243,7 @@ public class ClassesGenerator {
                 .append("    }\n");
     }
 
-    static StringBuilder getAndSet(StringBuilder builder,AnnotatedClass annotatedClass){
+    static StringBuilder set(StringBuilder builder, AnnotatedClass annotatedClass){
         for (VariableElement field : annotatedClass.annotatedFields) {
 
             builder.append("    public void set").append(capitalize(field.getSimpleName().toString())).append("(").append(field.asType().toString()).append(" param)").append(" {\n")
@@ -253,10 +256,10 @@ public class ClassesGenerator {
                     .append("        } else {\n" +
                             "            checkIdInManager(param);\n" +
                             "        }\n")
-                    .append("        if (this.").append(field.getSimpleName()).append(" != null) {\n" )
-                    .append("           this.").append(field.getSimpleName()).append(".setParent(this);\n" )
-                    .append("           this.").append(field.getSimpleName()).append(".setSelfField(Utils.getFieldName(1));\n")
-                    .append("        }\n")
+//                    .append("        if (this.").append(field.getSimpleName()).append(" != null) {\n" )
+//                    .append("           this.").append(field.getSimpleName()).append(".setParent(this);\n" )
+//                    .append("           this.").append(field.getSimpleName()).append(".setSelfField(Utils.getFieldName(1));\n")
+//                    .append("        }\n")
                     .append("    }\n\n");
         }
         return builder;
@@ -280,7 +283,7 @@ public class ClassesGenerator {
                 "     * if it found one it will notify it that the value has changed\n" +
                 "     * @param param\n" +
                 "     */\n");
-        return builder.append("    private void checkIdInManager(IKVO param){\n" +
+        return builder.append("    private void checkIdInManager(Object param){\n" +
                 "               for (FieldObject field : allKVOFields) {\n" +
                 "            if (field.getFieldName().equalsIgnoreCase(Utils.getFieldName(2))) {\n" +
                 "                if (!field.getFieldID().equals(\"\")) {\n" +

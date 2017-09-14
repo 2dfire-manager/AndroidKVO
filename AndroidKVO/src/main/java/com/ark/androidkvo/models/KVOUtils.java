@@ -7,8 +7,8 @@ import com.ark.androidkvo.models.val.FloatKVO;
 import com.ark.androidkvo.models.val.IntKVO;
 import com.ark.androidkvo.models.val.LongKVO;
 import com.ark.androidkvo.models.val.NothingKVO;
-import com.ark.androidkvo.models.val.ShortKVO;*/
-import com.ark.androidkvo.models.val.StringKVO;
+import com.ark.androidkvo.models.val.ShortKVO;
+import com.ark.androidkvo.models.val.StringKVO;*/
 
 /**
  * Created by dove on 2017/9/5.
@@ -16,7 +16,7 @@ import com.ark.androidkvo.models.val.StringKVO;
 
 public class KVOUtils {
 
-    public static KVOVal createValKVO(Object o){
+//    public static KVOVal createValKVO(Object o){
 //        if (o instanceof Boolean){
 //            return new BooleanKVO((Boolean) o);
 //        }
@@ -39,6 +39,6 @@ public class KVOUtils {
 //            return new StringKVO((String) o);
 //        }
 //        return new NothingKVO(o);
-        return null;
-    }
+//        return null;
+//    }
 }

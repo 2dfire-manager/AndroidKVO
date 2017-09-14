@@ -6,10 +6,10 @@ package com.ark.androidkvo.models;
  * 频繁通知刷新
  * 截留
  */
-public interface IKVO<T extends IKVO> {
+public interface IKVO {
     void setListener(KVOListener kvoListener);
-    T cloneSelf();
-    boolean same(T t);
-    boolean updateSelfValue(T t,String fieldName);
-    void notifyParent();
+//    T cloneSelf();
+//    boolean same(T t);
+//    boolean updateSelfValue(T t,String fieldName);
+//    void notifyParent();
 }
