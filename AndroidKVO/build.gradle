@@ -41,7 +41,7 @@ repositories {
 
 dependencies {
      compile fileTree(dir: 'libs', include: ['*.jar'])
-//     compile 'com.ark.androidkvo:KVOAnnotations:0.2'
+//     compile 'com.ark.androidkvo:KVOAnnotations:0.3'
     compile project(':KVOAnnotations')
     compile 'com.android.support:appcompat-v7:25.3.1'
 }
