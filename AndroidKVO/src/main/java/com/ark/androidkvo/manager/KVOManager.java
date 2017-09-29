@@ -34,7 +34,7 @@ import java.util.List;
 public class KVOManager {
 
     final private List<KVOObserverObject> observers = new ArrayList<>();
-    final private HashMap<String, List<WeakReference<KVOListener>>> identifiedObservers = new HashMap<>();
+    final private HashMap<String, List<KVOListener>> identifiedObservers = new HashMap<>();
 
     final private static KVOManager ourInstance = new KVOManager();
 
@@ -62,13 +62,13 @@ public class KVOManager {
     }
 
     public void addIdentifiedObserver(String idKey, KVOListener listener) {
-        WeakReference<KVOListener> weakListener = new WeakReference<>(listener);
+        KVOListener weakListener = listener;
         if (identifiedObservers.get(idKey) == null) {
-            List<WeakReference<KVOListener>> listenersList = new ArrayList<>();
+            List<KVOListener> listenersList = new ArrayList<>();
             listenersList.add(weakListener);
             identifiedObservers.put(idKey, listenersList);
         } else {
-            List<WeakReference<KVOListener>> listenersList = identifiedObservers.get(idKey);
+            List<KVOListener> listenersList = identifiedObservers.get(idKey);
             if (!listenersList.contains(weakListener)) {
                 listenersList.add(weakListener);
                 identifiedObservers.put(idKey, listenersList);
@@ -78,9 +78,9 @@ public class KVOManager {
     }
 
     public void removeIdentifiedObserver(KVOListener listener) {
-        for (List<WeakReference<KVOListener>> listenersList : identifiedObservers.values()) {
-            for (Iterator<WeakReference<KVOListener>> iterator = listenersList.iterator(); iterator.hasNext(); ) {
-                KVOListener observerObject = iterator.next().get();
+        for (List<KVOListener> listenersList : identifiedObservers.values()) {
+            for (Iterator<KVOListener> iterator = listenersList.iterator(); iterator.hasNext(); ) {
+                KVOListener observerObject = iterator.next();
                 if (observerObject == null || observerObject.equals(listener)) {
                     // Remove the current element from the iterator and the list.
                     iterator.remove();
@@ -89,7 +89,7 @@ public class KVOManager {
         }
     }
 
-    public HashMap<String, List<WeakReference<KVOListener>>> getIdentifiedObservers () {
+    public HashMap<String, List<KVOListener>> getIdentifiedObservers () {
         return identifiedObservers;
     }
 

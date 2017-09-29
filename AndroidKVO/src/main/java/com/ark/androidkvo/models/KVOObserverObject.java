@@ -28,17 +28,17 @@ import java.lang.ref.WeakReference;
 
 public class KVOObserverObject {
 
-    private WeakReference<KVOListener> listener;
+    private KVOListener listener;
 //    private WeakReference<List<KVOListener>> listeners;
     private String propertyName;
     private String fieldId;
 
     public KVOListener getListener() {
-        return listener.get();
+        return listener;
     }
 
     public void setListener(KVOListener listener) {
-        this.listener = new WeakReference<>(listener);
+        this.listener = listener;
     }
 
 //    public void addListener(KVOListener listener){

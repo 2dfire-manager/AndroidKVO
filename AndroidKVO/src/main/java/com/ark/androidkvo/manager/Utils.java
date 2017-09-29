@@ -31,10 +31,10 @@ public class Utils {
 
     public static List<KVOListener> getListenerForId(KVOManager manager,String id) {
         List<KVOListener> targetList = new ArrayList<>();
-        List<WeakReference<KVOListener>> sourceList = manager.getIdentifiedObservers().get(id);
+        List<KVOListener> sourceList = manager.getIdentifiedObservers().get(id);
         if (sourceList != null && !sourceList.isEmpty()) {
-            for (Iterator<WeakReference<KVOListener>> iterator = sourceList.iterator(); iterator.hasNext(); ) {
-                KVOListener observerObject = iterator.next().get();
+            for (Iterator<KVOListener> iterator = sourceList.iterator(); iterator.hasNext(); ) {
+                KVOListener observerObject = iterator.next();
                 if (observerObject != null) {
                     if (observerObject instanceof Activity)
                         if (((Activity) observerObject).isFinishing()) {
